@@ -1,6 +1,11 @@
 import { createSystem, defaultConfig } from "@chakra-ui/react";
 
 export const system = createSystem(defaultConfig, {
+  globalCss: {
+    "html, body": {
+      colorPalette: "brand",
+    },
+  },
   theme: {
     tokens: {
       colors: {
@@ -14,7 +19,7 @@ export const system = createSystem(defaultConfig, {
       },
       fonts: {
         heading: { value: "'Syne', sans-serif" },
-        boody: { value: "'Inter', sans-serif" },
+        body: { value: "'Inter', sans-serif" },
       },
     },
   },

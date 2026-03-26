@@ -29,7 +29,7 @@ const Navbar = () => {
         {/* Logo */}
         <Link to="/">
           <Text fontFamily="var(--font-title)" fontSize="1.5rem" fontWeight="700" color="#ca2d1e">
-            BookShelf
+            Librería Virtual
           </Text>
         </Link>
 

@@ -12,3 +12,12 @@ export const getBookById = async (id) => {
   const data = await response.json();
   return data;
 };
+
+export const deleteBook = async (id, token) => {
+  const response = await fetch(`${API_URL}/books/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await response.json();
+  return data;
+};
