@@ -25,13 +25,13 @@ const Home = () => {
   }, []);
 
   return (
-    <Box bg={colorMode === "dark" ? "#0d0d0d" : "#faf7f5"} minH="100vh">
+    <Box bg={colorMode === "dark" ? "#0d0d0d" : "#faf7f5"}>
       {/* Hero */}
       <Flex
         direction="column"
         align="center"
         justify="center"
-        minH="60vh"
+        minH="calc(100vh - 70px)"
         textAlign="center"
         px="var(--spacing-lg)"
         gap="var(--spacing-md)"
