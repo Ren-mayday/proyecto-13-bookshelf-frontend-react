@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Box, Flex, Button, SimpleGrid, Spinner, Heading, Input, chakra as Chakra } from "@chakra-ui/react";
 import { useColorMode } from "@chakra-ui/color-mode";
+import { Link } from "react-router-dom";
 import { getAllBooks } from "../services/booksService";
 import BookCard from "../components/BookCard";
+import useAuth from "../hooks/useAuth";
 
 const Books = () => {
   const [books, setBooks] = useState([]);
@@ -10,6 +12,8 @@ const Books = () => {
   const [search, setSearch] = useState("");
   const [searchType, setSearchType] = useState("title");
   const { colorMode } = useColorMode();
+  const { user } = useAuth();
+  const isDark = colorMode === "dark";
 
   const fetchBooks = async (filters = {}) => {
     setLoading(true);
@@ -41,18 +45,33 @@ const Books = () => {
   };
 
   return (
-    <Box bg={colorMode === "dark" ? "#0d0d0d" : "#faf7f5"} minH="100vh" px="var(--spacing-lg)" py="var(--spacing-xl)">
+    <Box bg={isDark ? "#0d0d0d" : "#faf7f5"} minH="100vh" px="var(--spacing-lg)" py="var(--spacing-xl)">
       <Box maxW="1200px" mx="auto">
-        <Heading
-          as="h1"
-          fontFamily="var(--font-title)"
-          fontSize="2.5rem"
-          fontWeight="700"
-          mb="var(--spacing-lg)"
-          color={colorMode === "dark" ? "#f5f0ee" : "#1a1a1a"}
-        >
-          Catálogo de libros
-        </Heading>
+        {/* Header */}
+        <Flex justify="space-between" align="center" mb="var(--spacing-lg)" flexWrap="wrap" gap="var(--spacing-md)">
+          <Heading
+            as="h1"
+            fontFamily="var(--font-title)"
+            fontSize="2.5rem"
+            fontWeight="700"
+            color={isDark ? "#f5f0ee" : "#1a1a1a"}
+          >
+            Catálogo de libros
+          </Heading>
+          {user && (
+            <Link to="/books/new">
+              <Button
+                bg="#ca2d1e"
+                color="#fff"
+                _hover={{ bg: "#a12418" }}
+                borderRadius="var(--radius-lg)"
+                px="var(--spacing-lg)"
+              >
+                + Añadir libro
+              </Button>
+            </Link>
+          )}
+        </Flex>
 
         {/* Buscador */}
         <Flex gap="var(--spacing-sm)" mb="var(--spacing-lg)" flexWrap="wrap">
@@ -62,11 +81,11 @@ const Books = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            bg={colorMode === "dark" ? "#1a1a1a" : "#f0eae7"}
+            bg={isDark ? "#1a1a1a" : "#f0eae7"}
             border="1px solid"
             borderRadius="var(--radius-lg)"
-            borderColor={colorMode === "dark" ? "#222222" : "#e2d8d4"}
-            color={colorMode === "dark" ? "#f5f0ee" : "#1a1a1a"}
+            borderColor={isDark ? "#222222" : "#e2d8d4"}
+            color={isDark ? "#f5f0ee" : "#1a1a1a"}
             maxW="300px"
             _focus={{ borderColor: "#ca2d1e", outline: "none" }}
           />

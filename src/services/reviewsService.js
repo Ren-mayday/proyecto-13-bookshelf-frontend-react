@@ -6,9 +6,30 @@ export const getReviewsByBook = async (bookId) => {
   return data;
 };
 
+export const getReviewsByUser = async (userId, token) => {
+  const response = await fetch(`${API_URL}/reviews?userId=${userId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await response.json();
+  return data;
+};
+
 export const createReview = async (bookId, reviewData, token) => {
   const response = await fetch(`${API_URL}/reviews/${bookId}`, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(reviewData),
+  });
+  const data = await response.json();
+  return data;
+};
+
+export const updateReview = async (id, reviewData, token) => {
+  const response = await fetch(`${API_URL}/reviews/${id}`, {
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,

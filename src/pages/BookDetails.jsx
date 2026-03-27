@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Box, Flex, Button, Spinner, Heading, Textarea, chakra as Chakra } from "@chakra-ui/react";
 import { useColorMode } from "@chakra-ui/color-mode";
 import { getBookById, deleteBook } from "../services/booksService";
-import { getReviewsByBook, createReview, deleteReview } from "../services/reviewsService";
+import { getReviewsByBook, createReview, updateReview, deleteReview } from "../services/reviewsService";
 import useAuth from "../hooks/useAuth";
 import ReviewCard from "../components/ReviewCard";
 
@@ -19,6 +19,9 @@ const BookDetails = () => {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+
+  const isDark = colorMode === "dark";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,6 +38,9 @@ const BookDetails = () => {
     fetchData();
   }, [id]);
 
+  // Comprueba si el usuario ya tiene una reseña en este libro
+  const userReview = user ? reviews.find((r) => r.user?._id === user.id || r.user === user.id) : null;
+
   const handleDeleteBook = async () => {
     if (!window.confirm("¿Estás seguro de que quieres eliminar este libro?")) return;
     try {
@@ -47,14 +53,26 @@ const BookDetails = () => {
 
   const handleSubmitReview = async () => {
     if (!comment.trim()) return;
+    setReviewError("");
     setSubmitting(true);
     try {
-      const newReview = await createReview(id, { rating, comment }, token);
+      const data = await createReview(id, { rating, comment }, token);
+
+      if (!data._id) {
+        setReviewError(typeof data === "string" ? data : data.message || "Error al publicar la reseña");
+        return;
+      }
+
+      const newReview = {
+        ...data,
+        user: { _id: user.id, userName: user.userName || user.email },
+      };
+
       setReviews([newReview, ...reviews]);
       setComment("");
       setRating(5);
     } catch (error) {
-      console.error(error);
+      setReviewError("Error de conexión con el servidor");
     } finally {
       setSubmitting(false);
     }
@@ -64,7 +82,17 @@ const BookDetails = () => {
     if (!window.confirm("¿Eliminar esta reseña?")) return;
     try {
       await deleteReview(reviewId, token);
-      setReviews(reviews.filter((r) => r.id !== reviewId));
+      setReviews(reviews.filter((r) => r._id !== reviewId));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleUpdateReview = async (reviewId, newComment, newRating) => {
+    try {
+      const data = await updateReview(reviewId, { newComment, newRating }, token);
+      if (!data.review) return;
+      setReviews(reviews.map((r) => (r._id === reviewId ? { ...r, comment: newComment, rating: newRating } : r)));
     } catch (error) {
       console.error(error);
     }
@@ -89,16 +117,16 @@ const BookDetails = () => {
   }
 
   return (
-    <Box bg={colorMode === "dark" ? "#0d0d0d" : "#faf7f5"} minH="100vh" px="var(--spacing-lg)" py="var(--spacing-xl)">
+    <Box bg={isDark ? "#0d0d0d" : "#faf7f5"} minH="100vh" px="var(--spacing-lg)" py="var(--spacing-xl)">
       <Box maxW="900px" mx="auto">
         {/* Info del libro */}
         <Box
-          bg={colorMode === "dark" ? "#1a1a1a" : "#f0eae7"}
+          bg={isDark ? "#1a1a1a" : "#f0eae7"}
           borderRadius="var(--radius-lg)"
           p="var(--spacing-lg)"
           mb="var(--spacing-lg)"
           border="1px solid"
-          borderColor={colorMode === "dark" ? "#222222" : "#e2d8d4"}
+          borderColor={isDark ? "#222222" : "#e2d8d4"}
         >
           <Flex justify="space-between" align="flex-start" mb="var(--spacing-md)">
             <Box>
@@ -107,7 +135,7 @@ const BookDetails = () => {
                 fontFamily="var(--font-title)"
                 fontSize="2rem"
                 fontWeight="700"
-                color={colorMode === "dark" ? "#f5f0ee" : "#1a1a1a"}
+                color={isDark ? "#f5f0ee" : "#1a1a1a"}
                 mb="var(--spacing-xs)"
               >
                 {book.title}
@@ -157,8 +185,8 @@ const BookDetails = () => {
             </Box>
             {book.year && (
               <Box
-                bg={colorMode === "dark" ? "#222222" : "#e2d8d4"}
-                color={colorMode === "dark" ? "#f5f0ee" : "#1a1a1a"}
+                bg={isDark ? "#222222" : "#e2d8d4"}
+                color={isDark ? "#f5f0ee" : "#1a1a1a"}
                 px="var(--spacing-sm)"
                 py="2px"
                 borderRadius="var(--radius-sm)"
@@ -169,8 +197,8 @@ const BookDetails = () => {
             )}
             {book.pages && (
               <Box
-                bg={colorMode === "dark" ? "#222222" : "#e2d8d4"}
-                color={colorMode === "dark" ? "#f5f0ee" : "#1a1a1a"}
+                bg={isDark ? "#222222" : "#e2d8d4"}
+                color={isDark ? "#f5f0ee" : "#1a1a1a"}
                 px="var(--spacing-sm)"
                 py="2px"
                 borderRadius="var(--radius-sm)"
@@ -185,7 +213,7 @@ const BookDetails = () => {
             <Chakra.p
               fontFamily="var(--font-body)"
               fontSize="1rem"
-              color={colorMode === "dark" ? "#9a9a9a" : "#6b6360"}
+              color={isDark ? "#9a9a9a" : "#6b6360"}
               lineHeight="1.7"
             >
               {book.synopsis}
@@ -195,77 +223,110 @@ const BookDetails = () => {
 
         {/* Formulario reseña */}
         {user ? (
-          <Box
-            bg={colorMode === "dark" ? "#1a1a1a" : "#f0eae7"}
-            borderRadius="var(--radius-lg)"
-            p="var(--spacing-lg)"
-            mb="var(--spacing-lg)"
-            border="1px solid"
-            borderColor={colorMode === "dark" ? "#222222" : "#e2d8d4"}
-          >
-            <Heading
-              as="h3"
-              fontFamily="var(--font-title)"
-              fontSize="1.2rem"
-              fontWeight="700"
-              color={colorMode === "dark" ? "#f5f0ee" : "#1a1a1a"}
-              mb="var(--spacing-md)"
-            >
-              Añadir reseña
-            </Heading>
-
-            <Flex align="center" gap="var(--spacing-sm)" mb="var(--spacing-md)">
-              <Chakra.p fontFamily="var(--font-body)" color={colorMode === "dark" ? "#f5f0ee" : "#1a1a1a"}>
-                Puntuación:
-              </Chakra.p>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Box
-                  key={star}
-                  cursor="pointer"
-                  fontSize="1.5rem"
-                  color={star <= rating ? "#ca2d1e" : "#9a9a9a"}
-                  onClick={() => setRating(star)}
-                >
-                  ★
-                </Box>
-              ))}
-            </Flex>
-
-            <Textarea
-              placeholder="Escribe tu reseña..."
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              bg={colorMode === "dark" ? "#0d0d0d" : "#faf7f5"}
-              border="1px solid"
-              borderColor={colorMode === "dark" ? "#222222" : "#e2d8d4"}
-              color={colorMode === "dark" ? "#f5f0ee" : "#1a1a1a"}
-              mb="var(--spacing-md)"
-              _focus={{ borderColor: "#ca2d1e" }}
-              borderRadius="var(--radius-md)"
-              rows={4}
-            />
-
-            <Button
-              bg="#ca2d1e"
-              color="#fff"
-              _hover={{ bg: "#a12418" }}
+          userReview ? (
+            <Box
+              bg={isDark ? "#1a1a1a" : "#f0eae7"}
               borderRadius="var(--radius-lg)"
-              onClick={handleSubmitReview}
-              loading={submitting}
-              px="var(--spacing-lg)"
+              p="var(--spacing-lg)"
+              mb="var(--spacing-lg)"
+              textAlign="center"
+              border="1px solid"
+              borderColor={isDark ? "#222222" : "#e2d8d4"}
             >
-              Publicar reseña
-            </Button>
-          </Box>
+              <Chakra.p fontFamily="var(--font-body)" color="#9a9a9a">
+                Ya has escrito una reseña para este libro. Puedes editarla o eliminarla desde tu reseña.
+              </Chakra.p>
+            </Box>
+          ) : (
+            <Box
+              bg={isDark ? "#1a1a1a" : "#f0eae7"}
+              borderRadius="var(--radius-lg)"
+              p="var(--spacing-lg)"
+              mb="var(--spacing-lg)"
+              border="1px solid"
+              borderColor={isDark ? "#222222" : "#e2d8d4"}
+            >
+              <Heading
+                as="h3"
+                fontFamily="var(--font-title)"
+                fontSize="1.2rem"
+                fontWeight="700"
+                color={isDark ? "#f5f0ee" : "#1a1a1a"}
+                mb="var(--spacing-md)"
+              >
+                Añadir reseña
+              </Heading>
+
+              <Flex align="center" gap="var(--spacing-sm)" mb="var(--spacing-md)">
+                <Chakra.p fontFamily="var(--font-body)" color={isDark ? "#f5f0ee" : "#1a1a1a"}>
+                  Puntuación:
+                </Chakra.p>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Box
+                    key={star}
+                    cursor="pointer"
+                    fontSize="1.5rem"
+                    color={star <= rating ? "#ca2d1e" : "#9a9a9a"}
+                    onClick={() => setRating(star)}
+                  >
+                    ★
+                  </Box>
+                ))}
+              </Flex>
+
+              <Textarea
+                placeholder="Escribe tu reseña..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                bg={isDark ? "#0d0d0d" : "#faf7f5"}
+                border="1px solid"
+                borderColor={isDark ? "#222222" : "#e2d8d4"}
+                color={isDark ? "#f5f0ee" : "#1a1a1a"}
+                mb="var(--spacing-md)"
+                p="var(--spacing-md)"
+                _focus={{ borderColor: "#ca2d1e" }}
+                borderRadius="var(--radius-md)"
+                rows={4}
+              />
+
+              {reviewError && (
+                <Box
+                  bg="#f9e0de"
+                  border="1px solid"
+                  borderColor="#ca2d1e"
+                  borderRadius="var(--radius-sm)"
+                  px="var(--spacing-md)"
+                  py="var(--spacing-sm)"
+                  mb="var(--spacing-md)"
+                >
+                  <Chakra.p fontFamily="var(--font-body)" fontSize="0.85rem" color="#a12418">
+                    {reviewError}
+                  </Chakra.p>
+                </Box>
+              )}
+
+              <Button
+                bg="#ca2d1e"
+                color="#fff"
+                _hover={{ bg: "#a12418" }}
+                borderRadius="var(--radius-lg)"
+                onClick={handleSubmitReview}
+                loading={submitting}
+                px="var(--spacing-lg)"
+              >
+                Publicar reseña
+              </Button>
+            </Box>
+          )
         ) : (
           <Box
-            bg={colorMode === "dark" ? "#1a1a1a" : "#f0eae7"}
+            bg={isDark ? "#1a1a1a" : "#f0eae7"}
             borderRadius="var(--radius-lg)"
             p="var(--spacing-lg)"
             mb="var(--spacing-lg)"
             textAlign="center"
             border="1px solid"
-            borderColor={colorMode === "dark" ? "#222222" : "#e2d8d4"}
+            borderColor={isDark ? "#222222" : "#e2d8d4"}
           >
             <Chakra.p fontFamily="var(--font-body)" color="#9a9a9a" mb="var(--spacing-md)">
               Inicia sesión para dejar una reseña
@@ -289,7 +350,7 @@ const BookDetails = () => {
           fontFamily="var(--font-title)"
           fontSize="1.5rem"
           fontWeight="700"
-          color={colorMode === "dark" ? "#f5f0ee" : "#1a1a1a"}
+          color={isDark ? "#f5f0ee" : "#1a1a1a"}
           mb="var(--spacing-md)"
         >
           Reseñas ({reviews.length})
@@ -302,7 +363,12 @@ const BookDetails = () => {
         ) : (
           <Flex direction="column" gap="var(--spacing-md)">
             {reviews.map((review) => (
-              <ReviewCard key={review._id} review={review} onDelete={handleDeleteReview} />
+              <ReviewCard
+                key={review._id}
+                review={review}
+                onDelete={handleDeleteReview}
+                onUpdate={handleUpdateReview}
+              />
             ))}
           </Flex>
         )}

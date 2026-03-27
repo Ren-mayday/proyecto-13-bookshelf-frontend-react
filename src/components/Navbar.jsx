@@ -74,6 +74,18 @@ const Navbar = () => {
 
           {user ? (
             <Flex align="center" gap="var(--spacing-sm)">
+              <Link to="/books/new">
+                <Button
+                  bg="#ca2d1e"
+                  color="#fff"
+                  _hover={{ bg: "#a12418" }}
+                  borderRadius="var(--radius-lg)"
+                  size="sm"
+                  px="var(--spacing-md)"
+                >
+                  + Añadir libro
+                </Button>
+              </Link>
               <Link to="/profile">
                 <Text
                   fontFamily="var(--font-body)"
@@ -81,7 +93,7 @@ const Navbar = () => {
                   color={isDark ? "#f5f0ee" : "#1a1a1a"}
                   _hover={{ color: "#ca2d1e" }}
                 >
-                  {user.email}
+                  Mi perfil
                 </Text>
               </Link>
               <Button
@@ -183,9 +195,22 @@ const Navbar = () => {
             <Box borderTop="1px solid" borderColor={isDark ? "#1a1a1a" : "#e2d8d4"} pt="var(--spacing-md)">
               {user ? (
                 <Flex direction="column" gap="var(--spacing-sm)">
+                  <Link to="/books/new" onClick={closeMenu}>
+                    <Button
+                      bg="#ca2d1e"
+                      color="#fff"
+                      _hover={{ bg: "#a12418" }}
+                      borderRadius="var(--radius-lg)"
+                      size="sm"
+                      w="fit-content"
+                      px="var(--spacing-md)"
+                    >
+                      + Añadir libro
+                    </Button>
+                  </Link>
                   <Link to="/profile" onClick={closeMenu}>
                     <Text fontFamily="var(--font-body)" fontSize="0.9rem" color="#9a9a9a">
-                      {user.email}
+                      Mi perfil
                     </Text>
                   </Link>
                   <Button
@@ -225,7 +250,7 @@ const Navbar = () => {
                       size="sm"
                       px="var(--spacing-md)"
                     >
-                      Register
+                      Registrar
                     </Button>
                   </Link>
                 </Flex>

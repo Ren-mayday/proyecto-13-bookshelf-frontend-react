@@ -7,6 +7,8 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
+import AddBook from "./pages/AddBook";
+import EditBook from "./pages/EditBook";
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/profile" element={<Profile />} />
+          <Route path="/books/new" element={<AddBook />} />
+          <Route path="/books/:id/edit" element={<EditBook />} />
         </Route>
       </Routes>
     </>
