@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Box, Flex, Button, Textarea, chakra as Chakra } from "@chakra-ui/react";
 import { useColorMode } from "@chakra-ui/color-mode";
 import useAuth from "../hooks/useAuth";
+import StarRating from "./StarRating";
 
 const ReviewCard = ({ review, onDelete, onUpdate }) => {
   const { colorMode } = useColorMode();
@@ -42,23 +43,7 @@ const ReviewCard = ({ review, onDelete, onUpdate }) => {
           <Chakra.p fontFamily="var(--font-body)" fontWeight="700" color={isDark ? "#f5f0ee" : "#1a1a1a"} mb="2px">
             {review.user?.userName || review.user?.email || "Usuario"}
           </Chakra.p>
-          <Flex gap="2px">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Box
-                key={star}
-                fontSize="1rem"
-                color={star <= (editing ? editRating : review.rating) ? "#ca2d1e" : "#9a9a9a"}
-              >
-                {editing ? (
-                  <Box cursor="pointer" onClick={() => setEditRating(star)}>
-                    ★
-                  </Box>
-                ) : (
-                  "★"
-                )}
-              </Box>
-            ))}
-          </Flex>
+          <StarRating rating={editing ? editRating : review.rating} onRate={editing ? setEditRating : null} />
         </Box>
 
         {isOwner && !editing && (

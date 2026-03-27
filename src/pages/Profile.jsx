@@ -4,6 +4,7 @@ import { useColorMode } from "@chakra-ui/color-mode";
 import { useNavigate, Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { getReviewsByUser } from "../services/reviewsService";
+import StarRating from "../components/StarRating";
 
 const Profile = () => {
   const { colorMode } = useColorMode();
@@ -175,13 +176,7 @@ const Profile = () => {
                     >
                       {review.book?.title || "Libro"}
                     </Chakra.p>
-                    <Flex gap="2px">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Box key={star} fontSize="0.9rem" color={star <= review.rating ? "#ca2d1e" : "#9a9a9a"}>
-                          ★
-                        </Box>
-                      ))}
-                    </Flex>
+                    <StarRating rating={review.rating} />
                   </Flex>
                   <Chakra.p
                     fontFamily="var(--font-body)"

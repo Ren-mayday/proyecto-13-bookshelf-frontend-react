@@ -6,6 +6,7 @@ import { getBookById, deleteBook } from "../services/booksService";
 import { getReviewsByBook, createReview, updateReview, deleteReview } from "../services/reviewsService";
 import useAuth from "../hooks/useAuth";
 import ReviewCard from "../components/ReviewCard";
+import StarRating from "../components/StarRating";
 
 const BookDetails = () => {
   const { id } = useParams();
@@ -261,17 +262,7 @@ const BookDetails = () => {
                 <Chakra.p fontFamily="var(--font-body)" color={isDark ? "#f5f0ee" : "#1a1a1a"}>
                   Puntuación:
                 </Chakra.p>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Box
-                    key={star}
-                    cursor="pointer"
-                    fontSize="1.5rem"
-                    color={star <= rating ? "#ca2d1e" : "#9a9a9a"}
-                    onClick={() => setRating(star)}
-                  >
-                    ★
-                  </Box>
-                ))}
+                <StarRating rating={rating} onRate={setRating} size="1.5rem" />
               </Flex>
 
               <Textarea
