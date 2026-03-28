@@ -100,6 +100,7 @@ const Navbar = () => {
                 onClick={handleLogout}
                 variant="outline"
                 borderRadius="var(--radius-lg)"
+                px="var(--spacing-md)"
                 borderColor="#ca2d1e"
                 color="#ca2d1e"
                 _hover={{ bg: "#ca2d1e", color: "#fff" }}

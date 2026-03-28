@@ -221,7 +221,6 @@ const AddBook = () => {
 
             <Flex gap="var(--spacing-md)" justify="flex-end" mt="var(--spacing-sm)">
               <Button
-                variant="outline"
                 borderColor="#9a9a9a"
                 color="#9a9a9a"
                 borderRadius="var(--radius-lg)"
