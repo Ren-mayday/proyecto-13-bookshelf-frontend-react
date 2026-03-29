@@ -5,6 +5,9 @@ import { Link } from "react-router-dom";
 
 const BookCard = ({ book }) => {
   const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+
+  const addedBy = book.createdBy?.userName || book.createdBy?.email || null;
 
   return (
     <Link to={`/books/${book._id}`}>
@@ -33,6 +36,11 @@ const BookCard = ({ book }) => {
         <chakra.p fontFamily="var(--font-body)" fontSize="0.8rem" color="#ca2d1e">
           {book.genre}
         </chakra.p>
+        {addedBy && (
+          <chakra.p fontFamily="var(--font-body)" fontSize="0.75rem" color={isDark ? "#555555" : "#b0a8a4"}>
+            Añadido por {addedBy}
+          </chakra.p>
+        )}
       </Box>
     </Link>
   );

@@ -99,7 +99,11 @@ const BookDetails = () => {
     }
   };
 
-  const isBookOwner = user && book && (user.id === book.createdBy || user.role === "admin");
+  const isBookOwner =
+    user && book && (user.id === book.createdBy?._id || user.id === book.createdBy || user.role === "admin");
+
+  console.log("user.id:", user?.id);
+  console.log("book.createdBy:", book?.createdBy);
 
   if (loading) {
     return (
