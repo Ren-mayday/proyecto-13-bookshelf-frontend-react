@@ -1,13 +1,14 @@
 import { Flex, Input, Button } from "@chakra-ui/react";
 import { useColorMode } from "@chakra-ui/color-mode";
 
-const SearchBar = ({ search, setSearch, searchType, setSearchType, onSearch, onClear }) => {
+const SearchBar = ({ search, setSearch, searchType, setSearchType, onSearch, onClear, inputRef }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
   return (
-    <Flex gap="var(--spacing-sm)" flexWrap="wrap">
+    <Flex gap="var(--spacing-sm)" mb="var(--spacing-lg)" flexWrap="wrap">
       <Input
+        ref={inputRef}
         pl="var(--spacing-md)"
         placeholder="Buscar..."
         value={search}

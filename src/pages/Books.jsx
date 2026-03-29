@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Box, SimpleGrid, Spinner, Heading, chakra as Chakra } from "@chakra-ui/react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { Box, Flex, SimpleGrid, Spinner, Heading, Button, chakra as Chakra } from "@chakra-ui/react";
 import { useColorMode } from "@chakra-ui/color-mode";
 import { Link } from "react-router-dom";
 import { getAllBooks } from "../services/booksService";
@@ -16,7 +16,11 @@ const Books = () => {
   const { user } = useAuth();
   const isDark = colorMode === "dark";
 
-  const fetchBooks = async (filters = {}) => {
+  // useRef para hacer foco automático en el input del buscador
+  const searchInputRef = useRef(null);
+
+  // useCallback para evitar que fetchBooks se recree en cada render
+  const fetchBooks = useCallback(async (filters = {}) => {
     setLoading(true);
     try {
       const data = await getAllBooks(filters);
@@ -26,10 +30,15 @@ const Books = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchBooks();
+  }, [fetchBooks]);
+
+  // Foco automático en el input al cargar la página
+  useEffect(() => {
+    searchInputRef.current?.focus();
   }, []);
 
   const handleSearch = () => {
@@ -82,6 +91,7 @@ const Books = () => {
           setSearchType={setSearchType}
           onSearch={handleSearch}
           onClear={handleClear}
+          inputRef={searchInputRef}
         />
 
         {/* Resultados */}
